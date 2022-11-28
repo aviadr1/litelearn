@@ -1,3 +1,6 @@
+# catboost_info files generated when running caboost
+catboost_info/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
