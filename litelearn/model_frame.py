@@ -7,7 +7,13 @@ import catboost
 import pandas as pd
 import seaborn as sns
 import shap
-from IPython.core.display_functions import display
+
+# compatibility between IPython 8.7 and 7.9
+try:
+    from IPython.core.display_functions import display
+except ImportError:
+    from IPython.display import display
+
 from pandas.core.dtypes.common import is_numeric_dtype
 from sklearn.inspection import permutation_importance
 from sklearn.metrics import mean_squared_error as mse

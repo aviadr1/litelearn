@@ -8,6 +8,6 @@ def test_basic_usage():
     target = "body_mass_g"
 
     df = sns.load_dataset(dataset)
-    df = df.dropna(subset=target)
+    df = df.dropna(subset=[target])
     model = ll.core_regress_df(df, target)
     result = model.get_evaluation()

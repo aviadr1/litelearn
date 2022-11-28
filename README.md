@@ -11,7 +11,7 @@ for your dataset in 3 lines of code:
 import seaborn as sns
 dataset = "penguins"
 target = "body_mass_g"
-df = sns.load_dataset(dataset).dropna(subset=target)
+df = sns.load_dataset(dataset).dropna(subset=[target])
 
 # just 3 lines of code to create 
 # and evaluate a model
