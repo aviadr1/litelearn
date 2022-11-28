@@ -137,16 +137,20 @@ class TrainFrame:
         if sample_weights is not None:
             sample_weights = sample_weights.loc[self.X_train.index]
 
-        visualizer = model.fit(
-            self.X_train,
-            self.y_train,
-            eval_set=(self.X_test, self.y_test),
-            #         logging_level='Verbose',  # you can uncomment this for text output
-            #         logging_level='Debug',  # you can uncomment this for text output
-            sample_weight=sample_weights,
-            plot=plot,
-            **fit_kwargs,
-        )
+        try:
+            visualizer = model.fit(
+                self.X_train,
+                self.y_train,
+                eval_set=(self.X_test, self.y_test),
+                #         logging_level='Verbose',  # you can uncomment this for text output
+                #         logging_level='Debug',  # you can uncomment this for text output
+                sample_weight=sample_weights,
+                plot=plot,
+                **fit_kwargs,
+            )
+        except catboost.CatboostError as err:
+            display(self.X_train.info())
+            raise
 
         # eval_pool = catboost.Pool(X_test, y_test)
 

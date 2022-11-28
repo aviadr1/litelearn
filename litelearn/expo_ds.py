@@ -105,27 +105,36 @@ def fill_nulls_naively(df):
     num_nulls = nulls.select_dtypes(include="number")
     print("numerical columns:")
     print(list(num_nulls.columns))
-    num_nulls = num_nulls.fillna(num_nulls.mean())
-    df[num_nulls.columns] = num_nulls
+    for col in num_nulls.columns:
+        df[col].fillna(df[col].mean(), inplace=True)
 
     cat_nulls = nulls.select_dtypes(exclude="number")
     print("categorical columns:")
     print(list(cat_nulls.columns))
-    cat_nulls = cat_nulls.fillna(cat_nulls.mode())
-    df[cat_nulls.columns] = cat_nulls
+    for col in cat_nulls.columns:
+        mode = df[col].mode()[0]
+        print(col, "- mode:", mode)
+        df[col].fillna(mode, inplace=True)
 
-    return df.join(nulls.isna().add_suffix("_is_missing"))
+    result = df.join(nulls.isna().add_suffix("_is_missing"))
+    return result
 
 
-def cleanup_df(df, target, train_index=None):
+def cleanup_df(df, target, train_index=None, use_categories=None):
+    use_categories = default_value(use_categories, True)
     X, y = xy_df(df=df, train_index=train_index, target=target)
 
     X = fill_nulls_naively(X)
 
-    cat_cols = X.select_dtypes(exclude=["number"]).columns
+    cat_cols = X.select_dtypes(exclude=["number", "bool"]).columns
 
     for col in cat_cols:
-        print(f"casting {col} onto numerical values")
-        X[col] = X[col].astype("category").cat.codes
+        if not use_categories:
+            print(f"casting {col} onto category codes")
+            X[col] = X[col].astype("category").cat.codes
+        else:
+            print(f"casting {col} onto category")
+            X[col] = X[col].astype("category")
 
+    # display(X.info())
     return X, y
