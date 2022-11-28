@@ -20,6 +20,7 @@ from sklearn.metrics import mean_squared_error as mse
 
 # from litelearn import TrainFrame
 from litelearn.expo_ds import default_value, display_evaluation_comparison
+from . import residuals
 
 
 @dataclass

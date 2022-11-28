@@ -11,3 +11,4 @@ def test_basic_usage():
     df = df.dropna(subset=[target])
     model = ll.core_regress_df(df, target)
     result = model.get_evaluation()
+    model.display_evaluations()
