@@ -18,6 +18,8 @@ ipython = "^7.9.0"
 [tool.poetry.group.test.dependencies]
 pytest = "^7.2.0"
 seaborn = "^0.11.2"
+jupyterlab = "^3.5.0"
+ipywidgets = "^8.0.2"
 
 [build-system]
 requires = ["poetry-core"]
