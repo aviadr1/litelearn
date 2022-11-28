@@ -120,10 +120,16 @@ def fill_nulls_naively(df):
     return result
 
 
-def cleanup_df(df, target, train_index=None, use_categories=None):
+def cleanup_df(
+    df,
+    target,
+    train_index=None,
+    use_categories=None,
+):
     use_categories = default_value(use_categories, True)
     X, y = xy_df(df=df, train_index=train_index, target=target)
 
+    # TODO: allow using catboost null handling capabilty
     X = fill_nulls_naively(X)
 
     cat_cols = X.select_dtypes(exclude=["number", "bool"]).columns
