@@ -66,9 +66,9 @@ def xy_split(
     random_state=None,
     stratify: Union[str, pd.Series] = None,
 ):
-    if train_index != None and test_size != None:
+    if train_index is not None and test_size is not None:
         raise ValueError("cannot specify both train_index and test_size")
-    if train_index != None and stratify != None:
+    if train_index is not None and stratify is not None:
         raise ValueError("cannot specify both train_index and stratify")
 
     test_size = default_value(test_size, 0.3)

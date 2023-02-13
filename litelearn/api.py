@@ -78,10 +78,12 @@ def core_classify_df(
 
     cats = train_frame.X_train.select_dtypes("category").columns.to_list()
     print("using categories:", cats)
-    cats_index = train_frame.X_train.columns.get_indexer(cats)
+    train_frame.cat_features = train_frame.X_train.columns.get_indexer(cats)
 
-    texts = train_frame.X_train.select_dtypes("object").columns.to_list()
-    print("using text fields:", texts)
+    train_frame.text_features = train_frame.X_train.select_dtypes(
+        "object"
+    ).columns.to_list()
+    print("using text fields:", train_frame.text_features)
 
     model = catboost.CatBoostClassifier(
         custom_loss=["AUC", "Accuracy", "Precision", "Recall"],
@@ -96,8 +98,8 @@ def core_classify_df(
     visualizer = model.fit(
         train_frame.X_train,
         train_frame.y_train,
-        cat_features=cats_index,
-        text_features=texts,
+        cat_features=train_frame.cat_features,
+        text_features=train_frame.text_features,
         eval_set=(train_frame.X_test, train_frame.y_test),
         # logging_level='Verbose',  # you can uncomment this for text output
         # logging_level='Debug',  # you can uncomment this for text output
@@ -110,8 +112,8 @@ def core_classify_df(
     eval_pool = catboost.Pool(
         train_frame.X_test,
         train_frame.y_test,
-        cat_features=cats_index,
-        text_features=texts,
+        cat_features=train_frame.cat_features,
+        text_features=train_frame.text_features,
     )
 
     result = ModelFrame(
