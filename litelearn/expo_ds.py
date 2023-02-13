@@ -132,7 +132,7 @@ def cleanup_df(
     # TODO: allow using catboost null handling capabilty
     X = fill_nulls_naively(X)
 
-    cat_cols = X.select_dtypes(exclude=["number", "bool"]).columns
+    cat_cols = X.select_dtypes(exclude=["number", "bool", "datetime"]).columns
 
     for col in cat_cols:
         if not use_categories:
