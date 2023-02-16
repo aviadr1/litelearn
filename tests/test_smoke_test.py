@@ -63,3 +63,40 @@ def test_dates_classification(dowjones_dataset):
     model, pool = ll.core_classify_df(df, target)
     # result = model.get_evaluation()
     # model.display_evaluations()
+
+
+def test_native_nulls_regression():
+    dataset = "penguins"
+    target = "body_mass_g"
+
+    df = sns.load_dataset(dataset)
+    df = df.dropna(subset=[target])
+    train = df.head(250)
+    test = df.drop(train.index)
+    model = ll.core_regress_df(df, target, train_index=train.index, use_nulls=False)
+
+
+def test_native_nulls_classification():
+    dataset = "penguins"
+    target = "species"
+
+    df = sns.load_dataset(dataset)
+    df = df.dropna(subset=[target])
+    train = df.head(250)
+    test = df.drop(train.index)
+    model, pool = ll.core_classify_df(
+        df, target, train_index=train.index, use_nulls=False
+    )
+
+
+def test_catboost_nulls_classification():
+    dataset = "penguins"
+    target = "species"
+
+    df = sns.load_dataset(dataset)
+    df = df.dropna(subset=[target])
+    train = df.head(250)
+    test = df.drop(train.index)
+    model, pool = ll.core_classify_df(
+        df, target, train_index=train.index, use_nulls=True
+    )

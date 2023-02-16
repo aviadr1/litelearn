@@ -49,8 +49,16 @@ class TrainFrame:
         train_index=None,
         test_size=None,
         stratify=None,
+        use_categories=None,
+        use_nulls=None,
     ):
-        X, y = cleanup_df(df=df, train_index=train_index, target=target)
+        X, y = cleanup_df(
+            df=df,
+            train_index=train_index,
+            target=target,
+            use_categories=use_categories,
+            use_nulls=use_nulls,
+        )
 
         X_train, X_test, y_train, y_test = xy_split(
             X,

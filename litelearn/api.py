@@ -15,6 +15,8 @@ def core_regress_df(
     fit_kwargs={},
     drop_columns=None,
     stratify=None,
+    use_categories=None,
+    use_nulls=None,
 ):
     train_frame = TrainFrame.from_df(
         df=df,
@@ -22,6 +24,8 @@ def core_regress_df(
         train_index=train_index,
         test_size=test_size,
         stratify=stratify,
+        use_categories=use_categories,
+        use_nulls=use_nulls,
     )
     if drop_columns:
         train_frame = train_frame.drop_columns(drop_columns)
@@ -58,6 +62,8 @@ def core_classify_df(
     fit_kwargs={},
     drop_columns=None,
     stratify=None,
+    use_categories=None,
+    use_nulls=None,
 ):
     train_frame = TrainFrame.from_df(
         df=df,
@@ -65,6 +71,8 @@ def core_classify_df(
         train_index=train_index,
         test_size=test_size,
         stratify=stratify,
+        use_categories=use_categories,
+        use_nulls=use_nulls,
     )
     if drop_columns:
         train_frame = train_frame.drop_columns(drop_columns)

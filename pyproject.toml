@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "litelearn"
-version = "0.1.6"
+version = "0.1.7"
 description = "a python library for quickly building and evaluating models"
 authors = ["Aviad Rozenhek <aviadr1@gmail.com>"]
 readme = "README.md"
