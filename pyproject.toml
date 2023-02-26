@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "litelearn"
-version = "0.2.0"
+version = "0.2.1"
 description = "a python library for quickly building and evaluating models"
 authors = ["Aviad Rozenhek <aviadr1@gmail.com>"]
 readme = "README.md"
@@ -13,9 +13,8 @@ catboost = "^1.1.1"
 numpy = "^1.21.6"
 scikit-learn = "^1.0.2"
 ipython = "^7.9.0"
+llvmlite = "^0.39.1" # needed because of issues in version 0.34
 
-
-#[tool.poetry.group.test.dependencies]
 [tool.poetry.dev-dependencies]
 pytest = "^7.2.1"
 seaborn = "^0.11.2"
