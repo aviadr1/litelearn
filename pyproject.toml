@@ -1,12 +1,12 @@
 [tool.poetry]
 name = "litelearn"
-version = "0.1.7"
+version = "0.2.0"
 description = "a python library for quickly building and evaluating models"
 authors = ["Aviad Rozenhek <aviadr1@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.7.15,<3.11"
+python = "^3.8"
 pandas = "^1.3.5"
 shap = "^0.41.0"
 catboost = "^1.1.1"
