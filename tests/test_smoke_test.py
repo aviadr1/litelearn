@@ -1,8 +1,11 @@
+import pickle
+
 import pytest
 import seaborn as sns
 import litelearn as ll
 import pandas as pd
 import numpy as np
+import pickle
 
 
 def test_basic_usage():
@@ -121,3 +124,15 @@ def test_categories():
     y_pred = model.predict(df)
     train_index = model.train_frame.X_train.index
     assert y_pred[train_index].tolist() == df.value[train_index].tolist()
+
+
+def test_pickle():
+    dataset = "penguins"
+    target = "body_mass_g"
+
+    df = sns.load_dataset(dataset)
+    df = df.dropna(subset=[target])
+    model = ll.core_regress_df(df, target, use_nulls=True)
+    storage = pickle.dumps(model)
+    model2 = pickle.loads(storage)
+    model2.predict(df)

@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Union, Callable, Optional, List
 
 import catboost
+import litelearn
 import pandas as pd
 import seaborn as sns
 import shap
@@ -44,9 +45,11 @@ class ModelFrame:
             model_frame.X_train # actually returns model_frame.train_frame.X_train
             model.get_stage_data('train') # # actually returns model_frame.train_frame..get_stage_data('train')
         """
-
-        # Gets called when the item is not found via __getattribute__
-        return getattr(self.train_frame, item)  # search in the train_frame
+        if item[:2] == "__" and item[-2:] == "__":
+            raise AttributeError(item)  # we dont mess with dunders
+        else:
+            # Gets called when the item is not found via __getattribute__
+            return getattr(self.train_frame, item)  # search in the train_frame
 
     def copy(self, deep=True):
         return ModelFrame(
@@ -65,10 +68,10 @@ class ModelFrame:
             prettified=True,
             type=type,
             data=catboost.Pool(
-                self.X_test,
-                label=self.y_test,
-                cat_features=self.cat_features,
-                # text_features=self.text_features,
+                self.train_frame.X_test,
+                label=self.train_frame.y_test,
+                cat_features=self.train_frame.cat_features,
+                # text_features=self.train_frame.text_features,
             ),
         )
         if self.current_segments is not None:
@@ -142,14 +145,14 @@ class ModelFrame:
         ) = self.get_segment_subset(
             segment_name=segment_name,
             segment_value=segment_value,
-            X=result.X_train,
-            y=result.y_train,
+            X=result.train_frame.X_train,
+            y=result.train_frame.y_train,
         )
         result.train_frame.X_test, result.train_frame.y_test = self.get_segment_subset(
             segment_name=segment_name,
             segment_value=segment_value,
-            X=result.X_test,
-            y=result.y_test,
+            X=result.train_frame.X_test,
+            y=result.train_frame.y_test,
         )
 
         return result
@@ -223,7 +226,7 @@ class ModelFrame:
     def get_evaluation(self):
         evaluation = pd.DataFrame()
         for stage in ["train", "test"]:
-            X, y = self.get_stage_data(stage)
+            X, y = self.train_frame.get_stage_data(stage)
             if len(X) <= 0:
                 continue
 
@@ -232,8 +235,8 @@ class ModelFrame:
             rmse = mse(y, y_pred, squared=False)
             evaluation.loc[stage, "rmse"] = rmse
             evaluation.loc[stage, "support"] = len(X)
-        if self.current_segments:
-            for name, value in self.current_segments.items():
+        if self.train_frame.current_segments:
+            for name, value in self.train_frame.current_segments.items():
                 evaluation[name] = value
                 evaluation = evaluation.set_index(name, append=True)
         evaluation["support"] = evaluation["support"].astype("int")
@@ -251,7 +254,7 @@ class ModelFrame:
         stage = default_value(stage, "test")
         plot = default_value(plot, "summary")
 
-        X, _ = self.get_stage_data(stage)
+        X, _ = self.train_frame.get_stage_data(stage)
 
         explainer = shap.TreeExplainer(self.model)
         shap_values = explainer.shap_values(X)
@@ -292,8 +295,8 @@ class ModelFrame:
 
         perm_importance = permutation_importance(
             self.model,
-            self.X_test,
-            self.y_test,  # self.y_test.astype('string'),
+            self.train_frame.X_test,
+            self.train_frame.y_test,  # self.y_test.astype('string'),
             n_repeats=n_repeats,
             random_state=random_state,
         )
@@ -303,7 +306,7 @@ class ModelFrame:
                 "mean": perm_importance.importances_mean,
                 "std": perm_importance.importances_std,
             },
-            index=self.X_test.columns,
+            index=self.train_frame.X_test.columns,
         ).sort_values(by="mean", ascending=False)
         return feature_importance
 
@@ -409,7 +412,9 @@ class ModelFrame:
                 # ordered from most to least important
                 order = self.get_permutation_importance()
                 # the target column will be first
-                result = result.loc[:, [self.y_train.name] + order.index.to_list()]
+                result = result.loc[
+                    :, [self.train_frame.y_train.name] + order.index.to_list()
+                ]
             else:
                 raise ValueError(
                     f'{orderby} is not a valid value for the parameter "orderby"'
