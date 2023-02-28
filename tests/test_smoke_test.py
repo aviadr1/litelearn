@@ -2,6 +2,7 @@ import pytest
 import seaborn as sns
 import litelearn as ll
 import pandas as pd
+import numpy as np
 
 
 def test_basic_usage():
@@ -53,6 +54,7 @@ def test_dates_regression(dowjones_dataset):
     model = ll.core_regress_df(df, target)
     result = model.get_evaluation()
     model.display_evaluations()
+    y_pred = model.predict(df)
 
 
 def test_dates_classification(dowjones_dataset):
@@ -100,3 +102,22 @@ def test_catboost_nulls_classification():
     model, pool = ll.core_classify_df(
         df, target, train_index=train.index, use_nulls=True
     )
+    y_pred = model.predict(df)
+
+
+def test_categories():
+    df = pd.DataFrame(
+        {
+            "cat": ["a", "b", "c", "d", "e", "f"],
+            "int": [1, 2, 3, 4, 5, 6],
+            "int_with_nulls": [1, np.nan, 3, np.nan, 2, 1],
+            "floats": [np.nan, 1.2, 1.3, 1.4, 1.3, 1.2],
+            "bools": [False, False, False, True, True, True],
+            "value": [1, 2, 2, 1, 1, 2],
+        }
+    )
+    target = "value"
+    model, pool = ll.core_classify_df(df, target, use_nulls=True)
+    y_pred = model.predict(df)
+    train_index = model.train_frame.X_train.index
+    assert y_pred[train_index].tolist() == df.value[train_index].tolist()

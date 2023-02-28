@@ -416,3 +416,34 @@ class ModelFrame:
                 )
 
         return result
+
+    def predict(self, df, drop_unused=True):
+        X_train = self.train_frame.X_train
+        model_columns = X_train.columns.to_list()
+
+        # print(df.columns.to_list())
+        if drop_unused:
+            drop_columns = set(df.columns) - set(model_columns)
+            print("dropping columns:", drop_columns)
+            df2 = df.drop(columns=drop_columns)
+
+        # reorder columns
+        df2 = df2[model_columns]
+
+        # recast columns
+        for col in model_columns:
+            src_dtype = df2[col].dtype
+            dst_dtype = X_train[col].dtype
+            if src_dtype != dst_dtype:
+                src_col = df2[col]
+                if dst_dtype.name == "category":
+                    unknown_values = set(df[col]) - set(X_train[col].cat.categories)
+                    src_col = src_col.replace(
+                        to_replace=unknown_values, value="LITELEARN_UNKNOWN"
+                    )
+
+                print("recasting", col, "from", src_dtype, "to", dst_dtype)
+                df2[col] = src_col.astype(dst_dtype)
+
+        # print(df2.columns.to_list())
+        return self.model.predict(df2)

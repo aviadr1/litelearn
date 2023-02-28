@@ -148,7 +148,10 @@ def cleanup_df(
             print(f"casting {col} onto category")
             ### Cannot convert StringArray to numpy.ndarray
             ### https://github.com/alteryx/evalml/pull/3966
-            X[col] = X[col].astype("string").astype("object").astype("category")
+            cat_col = X[col].astype("string").astype("object").astype("category")
+            if "LITELEARN_UNKNOWN" not in cat_col.cat.categories:
+                cat_col = cat_col.cat.add_categories("LITELEARN_UNKNOWN")
+            X[col] = cat_col
 
     # display(X.info())
     return X, y
