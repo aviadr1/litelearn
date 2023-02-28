@@ -146,7 +146,9 @@ def cleanup_df(
             X[col] = X[col].astype("category").cat.codes
         else:
             print(f"casting {col} onto category")
-            X[col] = X[col].astype("category")
+            ### Cannot convert StringArray to numpy.ndarray
+            ### https://github.com/alteryx/evalml/pull/3966
+            X[col] = X[col].astype("string").astype("object").astype("category")
 
     # display(X.info())
     return X, y
