@@ -128,7 +128,7 @@ def core_classify_df(
         model=model,
         train_frame=train_frame,
     )
-    result.eval_pool = eval_pool  # HACK!
+    # result.eval_pool = eval_pool  # HACK!
 
     # result.display_evaluation()
     result.display_feature_importance()

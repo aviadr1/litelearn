@@ -54,7 +54,7 @@ def dowjones_dataset():
 def test_dates_regression(dowjones_dataset):
     target = "Price"
     df = dowjones_dataset
-    model = ll.core_regress_df(df, target)
+    model = ll.core_regress_df(df, target, iterations=20, use_nulls=True)
     result = model.get_evaluation()
     model.display_evaluations()
     y_pred = model.predict(df)
@@ -126,7 +126,7 @@ def test_categories():
     assert y_pred[train_index].tolist() == df.value[train_index].tolist()
 
 
-def test_pickle():
+def test_pickle_regression():
     dataset = "penguins"
     target = "body_mass_g"
 
@@ -136,3 +136,30 @@ def test_pickle():
     storage = pickle.dumps(model)
     model2 = pickle.loads(storage)
     model2.predict(df)
+
+
+def test_pickle_classification():
+    dataset = "penguins"
+    target = "island"
+
+    df = sns.load_dataset(dataset)
+    df = df.dropna(subset=[target])
+    model, pool = ll.core_classify_df(df, target, use_nulls=True)
+    storage = pickle.dumps(model)
+    model2 = pickle.loads(storage)
+    model2.predict(df)
+
+
+@pytest.mark.xfail
+def test_predict_with_custom_nulls():
+    dataset = "penguins"
+    target = "body_mass_g"
+
+    df = sns.load_dataset(dataset)
+    df = df.dropna(subset=[target])
+    model = ll.core_regress_df(
+        df,
+        target,
+        use_nulls=False,  # litelearn will fillna and create _is_missing fields
+    )
+    model.predict(df)  # TODO: handle missing values properly
