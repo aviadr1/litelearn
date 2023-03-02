@@ -20,7 +20,11 @@ from sklearn.inspection import permutation_importance
 from sklearn.metrics import mean_squared_error as mse
 
 # from litelearn import TrainFrame
-from litelearn.expo_ds import default_value, display_evaluation_comparison
+from litelearn.expo_ds import (
+    default_value,
+    display_evaluation_comparison,
+    UNKNOWN_CATEGORY_VALUE,
+)
 from . import residuals
 
 
@@ -422,7 +426,7 @@ class ModelFrame:
 
         return result
 
-    def predict(self, df, drop_unused=True):
+    def predict_prepare(self, df, drop_unused=True):
         X_train = self.train_frame.X_train
         model_columns = X_train.columns.to_list()
 
@@ -444,11 +448,27 @@ class ModelFrame:
                 if dst_dtype.name == "category":
                     unknown_values = set(df[col]) - set(X_train[col].cat.categories)
                     src_col = src_col.replace(
-                        to_replace=unknown_values, value="LITELEARN_UNKNOWN"
+                        to_replace=unknown_values, value=UNKNOWN_CATEGORY_VALUE
                     )
 
                 print("recasting", col, "from", src_dtype, "to", dst_dtype)
                 df2[col] = src_col.astype(dst_dtype)
 
         # print(df2.columns.to_list())
-        return self.model.predict(df2)
+        return df2
+
+    def predict(self, df, drop_unused=True):
+        result = self.model.predict(self.predict_prepare(df, drop_unused=drop_unused))
+        if result.ndim == 1:
+            return pd.Series(result, index=df.index)
+        elif result.ndim == 2 and result.shape[1] == 1:
+            return pd.Series(result[:, 0], index=df.index)
+        else:
+            return pd.DataFrame(result, index=df.index)
+
+    def predict_proba(self, df, drop_unused=True):
+        return pd.DataFrame(
+            self.model.predict_proba(self.predict_prepare(df, drop_unused=drop_unused)),
+            columns=list(self.model.classes_),
+            index=df.index,
+        )

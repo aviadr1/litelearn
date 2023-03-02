@@ -15,6 +15,8 @@ from sklearn.model_selection import train_test_split as split
 logging.basicConfig()
 shap.initjs()
 
+UNKNOWN_CATEGORY_VALUE = "LITELEARN_UNKNOWN"
+
 
 def print_version(lib):
     print(lib.__name__, lib.__version__)
@@ -128,7 +130,9 @@ def cleanup_df(
     use_nulls=None,
 ):
     use_categories = default_value(use_categories, True)
-    use_nulls = default_value(use_nulls, False)
+    # use_nulls=True will use the native null handling of catboost
+    # use_nulls=False will fillna and add _is_missing columns
+    use_nulls = default_value(use_nulls, True)  # TODO: fix issues for use_nulls=False
 
     X, y = xy_df(df=df, train_index=train_index, target=target)
 
@@ -149,8 +153,8 @@ def cleanup_df(
             ### Cannot convert StringArray to numpy.ndarray
             ### https://github.com/alteryx/evalml/pull/3966
             cat_col = X[col].astype("string").astype("object").astype("category")
-            if "LITELEARN_UNKNOWN" not in cat_col.cat.categories:
-                cat_col = cat_col.cat.add_categories("LITELEARN_UNKNOWN")
+            if UNKNOWN_CATEGORY_VALUE not in cat_col.cat.categories:
+                cat_col = cat_col.cat.add_categories(UNKNOWN_CATEGORY_VALUE)
             X[col] = cat_col
 
     # display(X.info())

@@ -17,6 +17,7 @@ def test_basic_usage():
     model = ll.core_regress_df(df, target)
     result = model.get_evaluation()
     model.display_evaluations()
+    pred = model.predict(df)
 
 
 def test_train_index():
@@ -147,7 +148,8 @@ def test_pickle_classification():
     model, pool = ll.core_classify_df(df, target, use_nulls=True)
     storage = pickle.dumps(model)
     model2 = pickle.loads(storage)
-    model2.predict(df)
+    result = model2.predict(df)
+    assert isinstance(result, pd.Series)
 
 
 @pytest.mark.xfail
@@ -163,3 +165,20 @@ def test_predict_with_custom_nulls():
         use_nulls=False,  # litelearn will fillna and create _is_missing fields
     )
     model.predict(df)  # TODO: handle missing values properly
+
+
+def test_predict_proba():
+    dataset = "penguins"
+    target = "species"
+
+    df = sns.load_dataset(dataset)
+    df = df.dropna(subset=[target])
+    model, pool = ll.core_classify_df(
+        df,
+        target,
+        use_nulls=True,
+    )
+    proba = model.predict_proba(df)
+    assert proba.shape == (len(df), 3)
+    assert set(proba.columns) == set(df.species.unique())
+    assert proba.index.equals(df.index)
