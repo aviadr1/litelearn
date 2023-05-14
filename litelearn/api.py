@@ -135,4 +135,4 @@ def classify_df(
     # result.display_evaluation()
     result.display_feature_importance()
 
-    return result, eval_pool
+    return result

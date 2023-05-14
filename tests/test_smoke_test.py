@@ -28,7 +28,7 @@ def test_train_index():
     df = df.dropna(subset=[target])
     train = df.head(250)
     test = df.drop(train.index)
-    model, pool = ll.classify_df(df, target, train_index=train.index)
+    model = ll.classify_df(df, target, train_index=train.index)
     # result = model.get_evaluation()
     # model.display_evaluations()
     assert (model.X_train.index == train.index).all()
@@ -66,7 +66,7 @@ def test_dates_classification(dowjones_dataset):
     df = dowjones_dataset
     df["up"] = df["Price"] > df["prev_5d_avg"]
     df = df.dropna(subset=[target])
-    model, pool = ll.classify_df(df, target)
+    model = ll.classify_df(df, target)
     # result = model.get_evaluation()
     # model.display_evaluations()
 
@@ -90,7 +90,7 @@ def test_native_nulls_classification():
     df = df.dropna(subset=[target])
     train = df.head(250)
     test = df.drop(train.index)
-    model, pool = ll.classify_df(
+    model = ll.classify_df(
         df, target, train_index=train.index, use_nulls=False
     )
 
@@ -103,7 +103,7 @@ def test_catboost_nulls_classification():
     df = df.dropna(subset=[target])
     train = df.head(250)
     test = df.drop(train.index)
-    model, pool = ll.classify_df(
+    model = ll.classify_df(
         df, target, train_index=train.index, use_nulls=True
     )
     y_pred = model.predict(df)
@@ -121,7 +121,7 @@ def test_categories():
         }
     )
     target = "value"
-    model, pool = ll.classify_df(df, target, use_nulls=True)
+    model = ll.classify_df(df, target, use_nulls=True)
     y_pred = model.predict(df)
     train_index = model.train_frame.X_train.index
     assert y_pred[train_index].tolist() == df.value[train_index].tolist()
@@ -145,7 +145,7 @@ def test_pickle_classification():
 
     df = sns.load_dataset(dataset)
     df = df.dropna(subset=[target])
-    model, pool = ll.classify_df(df, target, use_nulls=True)
+    model = ll.classify_df(df, target, use_nulls=True)
     storage = pickle.dumps(model)
     model2 = pickle.loads(storage)
     result = model2.predict(df)
@@ -173,7 +173,7 @@ def test_predict_proba():
 
     df = sns.load_dataset(dataset)
     df = df.dropna(subset=[target])
-    model, pool = ll.classify_df(
+    model = ll.classify_df(
         df,
         target,
         use_nulls=True,
@@ -206,7 +206,7 @@ def test_titanic_survived():
 
     df = sns.load_dataset(dataset)
     df = df.dropna(subset=[target])
-    model, pool = ll.classify_df(
+    model = ll.classify_df(
         df,
         target,
         use_nulls=True,
