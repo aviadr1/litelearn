@@ -14,7 +14,7 @@ def test_basic_usage():
 
     df = sns.load_dataset(dataset)
     df = df.dropna(subset=[target])
-    model = ll.core_regress_df(df, target)
+    model = ll.regress_df(df, target)
     result = model.get_evaluation()
     model.display_evaluations()
     pred = model.predict(df)
@@ -28,7 +28,7 @@ def test_train_index():
     df = df.dropna(subset=[target])
     train = df.head(250)
     test = df.drop(train.index)
-    model, pool = ll.core_classify_df(df, target, train_index=train.index)
+    model, pool = ll.classify_df(df, target, train_index=train.index)
     # result = model.get_evaluation()
     # model.display_evaluations()
     assert (model.X_train.index == train.index).all()
@@ -55,7 +55,7 @@ def dowjones_dataset():
 def test_dates_regression(dowjones_dataset):
     target = "Price"
     df = dowjones_dataset
-    model = ll.core_regress_df(df, target, iterations=20, use_nulls=True)
+    model = ll.regress_df(df, target, iterations=20, use_nulls=True)
     result = model.get_evaluation()
     model.display_evaluations()
     y_pred = model.predict(df)
@@ -66,7 +66,7 @@ def test_dates_classification(dowjones_dataset):
     df = dowjones_dataset
     df["up"] = df["Price"] > df["prev_5d_avg"]
     df = df.dropna(subset=[target])
-    model, pool = ll.core_classify_df(df, target)
+    model, pool = ll.classify_df(df, target)
     # result = model.get_evaluation()
     # model.display_evaluations()
 
@@ -79,7 +79,7 @@ def test_native_nulls_regression():
     df = df.dropna(subset=[target])
     train = df.head(250)
     test = df.drop(train.index)
-    model = ll.core_regress_df(df, target, train_index=train.index, use_nulls=False)
+    model = ll.regress_df(df, target, train_index=train.index, use_nulls=False)
 
 
 def test_native_nulls_classification():
@@ -90,7 +90,7 @@ def test_native_nulls_classification():
     df = df.dropna(subset=[target])
     train = df.head(250)
     test = df.drop(train.index)
-    model, pool = ll.core_classify_df(
+    model, pool = ll.classify_df(
         df, target, train_index=train.index, use_nulls=False
     )
 
@@ -103,7 +103,7 @@ def test_catboost_nulls_classification():
     df = df.dropna(subset=[target])
     train = df.head(250)
     test = df.drop(train.index)
-    model, pool = ll.core_classify_df(
+    model, pool = ll.classify_df(
         df, target, train_index=train.index, use_nulls=True
     )
     y_pred = model.predict(df)
@@ -121,7 +121,7 @@ def test_categories():
         }
     )
     target = "value"
-    model, pool = ll.core_classify_df(df, target, use_nulls=True)
+    model, pool = ll.classify_df(df, target, use_nulls=True)
     y_pred = model.predict(df)
     train_index = model.train_frame.X_train.index
     assert y_pred[train_index].tolist() == df.value[train_index].tolist()
@@ -133,7 +133,7 @@ def test_pickle_regression():
 
     df = sns.load_dataset(dataset)
     df = df.dropna(subset=[target])
-    model = ll.core_regress_df(df, target, use_nulls=True)
+    model = ll.regress_df(df, target, use_nulls=True)
     storage = pickle.dumps(model)
     model2 = pickle.loads(storage)
     model2.predict(df)
@@ -145,7 +145,7 @@ def test_pickle_classification():
 
     df = sns.load_dataset(dataset)
     df = df.dropna(subset=[target])
-    model, pool = ll.core_classify_df(df, target, use_nulls=True)
+    model, pool = ll.classify_df(df, target, use_nulls=True)
     storage = pickle.dumps(model)
     model2 = pickle.loads(storage)
     result = model2.predict(df)
@@ -159,7 +159,7 @@ def test_predict_with_custom_nulls():
 
     df = sns.load_dataset(dataset)
     df = df.dropna(subset=[target])
-    model = ll.core_regress_df(
+    model = ll.regress_df(
         df,
         target,
         use_nulls=False,  # litelearn will fillna and create _is_missing fields
@@ -173,7 +173,7 @@ def test_predict_proba():
 
     df = sns.load_dataset(dataset)
     df = df.dropna(subset=[target])
-    model, pool = ll.core_classify_df(
+    model, pool = ll.classify_df(
         df,
         target,
         use_nulls=True,
@@ -182,3 +182,33 @@ def test_predict_proba():
     assert proba.shape == (len(df), 3)
     assert set(proba.columns) == set(df.species.unique())
     assert proba.index.equals(df.index)
+
+
+def test_float_regression():
+    dataset = "diamonds"
+    target = "carat"
+
+    df = sns.load_dataset(dataset).sample(1000)
+    assert df[target].dtype == np.float64
+
+    df = df.dropna(subset=[target])
+    model = ll.regress_df(
+        df,
+        target,
+        use_nulls=True,
+    )
+    pred = model.predict(df)
+    assert pred.dtype == np.float64
+
+def test_titanic_survived():
+    dataset = "titanic"
+    target = "survived"
+
+    df = sns.load_dataset(dataset)
+    df = df.dropna(subset=[target])
+    model, pool = ll.classify_df(
+        df,
+        target,
+        use_nulls=True,
+    )
+    pred = model.predict(df)

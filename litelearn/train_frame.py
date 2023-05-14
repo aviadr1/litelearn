@@ -9,6 +9,7 @@ from litelearn import ModelFrame
 from litelearn.expo_ds import cleanup_df, xy_split, default_value, _is_interactive
 
 
+
 @dataclass
 class TrainFrame:
     """

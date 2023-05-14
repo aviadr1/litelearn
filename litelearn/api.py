@@ -1,10 +1,12 @@
 import catboost
 import numpy as np
 
-from litelearn import TrainFrame, ModelFrame
+from litelearn.train_frame import TrainFrame
+from litelearn.model_frame import ModelFrame
+from litelearn.exceptions import TrainingException
 
 
-def core_regress_df(
+def regress_df(
     df,
     target,
     train_index=None,
@@ -33,7 +35,7 @@ def core_regress_df(
     y = df[target]
 
     if not np.issubdtype(y.dtype, np.number):
-        raise Exception(
+        raise TrainingException(
             f'unable to use "{target}" as regression target since it is not numerical'
         )
 
@@ -51,7 +53,7 @@ def core_regress_df(
     return result
 
 
-def core_classify_df(
+def classify_df(
     df,
     target,
     train_index=None,

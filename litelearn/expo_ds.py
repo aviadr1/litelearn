@@ -11,11 +11,14 @@ import shap
 # For validation
 from sklearn.model_selection import train_test_split as split
 
+from litelearn.exceptions import *
+
 # logging.basicConfig(level=logging.DEBUG)
 logging.basicConfig()
 shap.initjs()
 
 UNKNOWN_CATEGORY_VALUE = "LITELEARN_UNKNOWN"
+NA_CATEGORY_VALUE = "LITELEARN_NA_VALUE"
 
 
 def print_version(lib):
@@ -52,7 +55,7 @@ def xy_df(df, target, train_index=None):
     y = df[target]
 
     if y.isna().sum():
-        raise Exception(
+        raise TrainingException(
             f'unable to use "{target}" as target column since it contains null values'
         )
 
@@ -142,7 +145,13 @@ def cleanup_df(
     if not use_nulls:
         X = fill_nulls_naively(X)
     else:
-        X[cat_cols] = X[cat_cols].fillna("LITELEARN_NA_VALUE").astype("string")
+        # add NA_CATEGORY_VALUE to categorical columns
+        for col in cat_cols:
+            if X[col].dtype.name == "category":
+                X[col].cat.add_categories(NA_CATEGORY_VALUE, inplace=True)
+
+        # fillna with NA_CATEGORY_VALUE
+        X[cat_cols] = X[cat_cols].fillna(NA_CATEGORY_VALUE).astype("string")
 
     for col in cat_cols:
         if not use_categories:

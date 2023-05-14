@@ -24,6 +24,7 @@ from litelearn.expo_ds import (
     default_value,
     display_evaluation_comparison,
     UNKNOWN_CATEGORY_VALUE,
+    NA_CATEGORY_VALUE
 )
 from . import residuals
 
@@ -447,9 +448,14 @@ class ModelFrame:
                 src_col = df2[col]
                 if dst_dtype.name == "category":
                     unknown_values = set(df[col]) - set(X_train[col].cat.categories)
-                    src_col = src_col.replace(
+                    src_col = src_col.astype('string').replace(
                         to_replace=unknown_values, value=UNKNOWN_CATEGORY_VALUE
                     )
+
+                    # fillna for categories - catboost can't handle NaNs for categorical cols
+                    if src_col.isna().any():
+                        print('fillna for', col)
+                        src_col = src_col.astype('string').fillna(NA_CATEGORY_VALUE)
 
                 print("recasting", col, "from", src_dtype, "to", dst_dtype)
                 df2[col] = src_col.astype(dst_dtype)
