@@ -66,7 +66,7 @@ pred = model.predict(val)  # predict on unseen data
 + supports sklearn's [permutation importance](https://scikit-learn.org/stable/modules/permutation_importance.html)
   call `model.display_permutation_importance()` or `model.get_permutation_importance()` 
   to get feature importances that are biased towards the model's performance on test data.
-+ supports easy pickling: to save your model simply call `model.save("path/to/model.pkl")`
++ supports easy pickling: to save your model simply call `model.dump("path/to/model.pkl")`
   and to load your model call `model.load("path/to/model.pkl")`
 + for regression models, you can call `model.display_residuals()` to see the residuals of your model
 + it also supports segmeents for your data using the `model.set_segments()` method.
