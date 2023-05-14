@@ -17,7 +17,7 @@ except ImportError:
 
 from pandas.core.dtypes.common import is_numeric_dtype
 from sklearn.inspection import permutation_importance
-from sklearn.metrics import mean_squared_error as mse
+from sklearn.metrics import mean_squared_error as mse, classification_report
 
 # from litelearn import TrainFrame
 from litelearn.expo_ds import (
@@ -229,6 +229,37 @@ class ModelFrame:
         return result
 
     def get_evaluation(self):
+        if self.train_frame.y_train.dtype.name in ["category", 'string', 'object']:
+            return self._get_classification_evaluation()
+        else:
+            return self._get_regression_evaluation()
+
+    def _get_classification_evaluation(self):
+        evaluation = pd.DataFrame()
+        for stage in ["train", "test"]:
+            X, y = self.train_frame.get_stage_data(stage)
+            if len(X) <= 0:
+                continue
+
+            assert list(self.model.classes_) == list(self.train_frame.y_train.cat.categories)
+            y_pred = self.model.predict(X)
+            # https://stackoverflow.com/a/53780589/52917
+            report = classification_report(
+                y,
+                y_pred,
+                target_names=self.model.classes_,
+                output_dict=True
+            )
+            report.update({"accuracy": {"precision": None, "recall": None, "f1-score": report["accuracy"],
+                                        "support": report['macro avg']['support']}})
+            report = pd.DataFrame(report).transpose()
+            # https://stackoverflow.com/a/40225891/52917
+            report = pd.concat([report], axis=1, keys=[stage])
+            evaluation = pd.concat([evaluation, report], axis=1).round(3)
+
+        return evaluation
+
+    def _get_regression_evaluation(self):
         evaluation = pd.DataFrame()
         for stage in ["train", "test"]:
             X, y = self.train_frame.get_stage_data(stage)

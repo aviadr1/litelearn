@@ -138,6 +138,8 @@ def cleanup_df(
     use_nulls = default_value(use_nulls, True)  # TODO: fix issues for use_nulls=False
 
     X, y = xy_df(df=df, train_index=train_index, target=target)
+    if y.dtype.name in ['string', 'object']:
+        y = y.astype('category')
 
     cat_cols = X.select_dtypes(exclude=["number", "bool", "datetime"]).columns
 
