@@ -57,6 +57,7 @@ model = ...  # build some model
 pred = model.predict(val)  # predict on unseen data
 ```
 
+
 ## features
 + does all the data munging for you, including missing data, categorical data handling
 + uses the robust [catboost](https://catboost.ai/) library for gradient boosting, which is known for generating
@@ -72,4 +73,13 @@ pred = model.predict(val)  # predict on unseen data
 + it also supports segmeents for your data using the `model.set_segments()` method.
   this will create a new column in your dataframe called `segment` which you can use to
   group your data. this is useful for seeing how your model performs on different segments of your data.
- 
+  
+
+## interactive streamlit demo
+To showcase the library, see [here](https://aviadr1-litelearn-streamlit-main-bkhh48.streamlit.app/) for an interactive 
+streamlit web app showing the ability of the library to handle many datasets with ease, 
+including uploading your own dataset. 
+
+![streamlit demo](https://awesomescreenshot.s3.amazonaws.com/image/1882885/39822988-68e9b3563f6895357c1eea07f99ee1c4.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAJSCJQ2NM3XLFPVKA%2F20230514%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20230514T215550Z&X-Amz-Expires=28800&X-Amz-SignedHeaders=host&X-Amz-Signature=c96a347d40fb645271d846cac0f612895be5ed1d0eaeadf04bfb21ba991d44ae)
+
+the code for this demo is on [github.com/aviadr1/litelearn-streamlit](https://github.com/aviadr1/litelearn-streamlit)
