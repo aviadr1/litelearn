@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Union, Callable, Optional, List
+import pickle
 
 import catboost
 import litelearn
@@ -509,3 +510,39 @@ class ModelFrame:
             columns=list(self.model.classes_),
             index=df.index,
         )
+
+    def dump(self, filename=None):
+        """
+        Save the model to a file or to a string
+        :param filename: if specified, the model is saved to the file, otherwise it is returned as a string
+        :return: the model as a string if filename is None, otherwise None
+        """
+        if filename is None:
+            return pickle.dumps(self)
+        else:
+            with open(filename, "wb") as f:
+                pickle.dump(self, f)
+
+
+    @staticmethod
+    def load(filename=None, data=None):
+        """
+        Load the model from a file or from a string
+
+        :param filename: if specified, the model is loaded from the file, otherwise it is loaded from the string
+        :param data: if specified, the model is loaded from the string, otherwise it is loaded from the file
+        :return: the loaded model
+        """
+        if not filename and not data:
+            raise ValueError('Either filename or data must be specified')
+        if filename and data:
+            raise ValueError('Only one of filename or data must be specified')
+        result = None
+        if filename:
+            with open(filename, "rb") as f:
+                result = pickle.load(f)
+        else:
+            result = pickle.loads(data)
+        assert isinstance(result, Model)
+        return result
+
